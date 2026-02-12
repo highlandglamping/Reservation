@@ -1,0 +1,3128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resort Reservation Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f8ff;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c8c99 0%, #1a5f7a 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .summary-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1a5f7a;
+        }
+
+        .summary-card .label {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .financial-summary {
+            background-color: #f0f7fa;
+            padding: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .financial-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .financial-stat {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .financial-stat h4 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .financial-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a5f7a;
+        }
+
+        .financial-value.advance {
+            color: #2ecc71;
+        }
+
+        .financial-value.pending {
+            color: #e74c3c;
+        }
+
+        .financial-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .reservation-controls {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eaeaea;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .date-selector, .room-filter, .meal-plan-filter {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a5f7a;
+        }
+
+        .flatpickr-input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .current-month {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a5f7a;
+            margin-left: auto;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .room-categories {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 20px;
+            background-color: #f0f7fa;
+            border-bottom: 1px solid #eaeaea;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .category {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .superior {
+            background-color: #ffebcc;
+            color: #cc6600;
+        }
+
+        .standard {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .exclusive {
+            background-color: #e0c8f0;
+            color: #4a235a;
+        }
+
+        .room-legend {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .booking-actions {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eaeaea;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .action-button.bulk-booking {
+            background-color: #9b59b6;
+            color: white;
+        }
+
+        .action-button.bulk-booking:hover {
+            background-color: #8e44ad;
+        }
+
+        .action-button.quick-check {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .action-button.quick-check:hover {
+            background-color: #2980b9;
+        }
+
+        .action-button.clear-selection {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .action-button.clear-selection:hover {
+            background-color: #c0392b;
+        }
+
+        .action-button.add-booking {
+            background-color: #1a5f7a;
+            color: white;
+        }
+
+        .action-button.add-booking:hover {
+            background-color: #144a60;
+        }
+
+        /* Availability Check Step Styles */
+        .availability-check-step {
+            background-color: #f8f9fa;
+            border: 2px solid #1a5f7a;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .step-indicator {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background-color: #1a5f7a;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .availability-check-row {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .availability-check-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .availability-check-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .availability-message {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .availability-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .availability-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .availability-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .booking-details-section {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .booking-details-section.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: row;
+            min-height: 600px;
+        }
+
+        .reservation-chart-container {
+            flex: 1;
+            overflow-x: auto;
+            padding: 20px;
+            border-right: 1px solid #eaeaea;
+        }
+
+        .summary-sidebar {
+            width: 320px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1400px;
+        }
+
+        thead th {
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .room-cell {
+            padding: 12px 10px;
+            text-align: center;
+            font-weight: 600;
+            border-right: 1px solid #eee;
+            width: 140px;
+            position: sticky;
+            left: 0;
+            background-color: white;
+            z-index: 5;
+        }
+
+        .advance-cell {
+            padding: 12px 10px;
+            text-align: center;
+            font-weight: 600;
+            border-right: 2px solid #ddd;
+            width: 120px;
+            position: sticky;
+            left: 140px;
+            background-color: #f9f9f9;
+            z-index: 5;
+            font-size: 0.9rem;
+        }
+
+        .room-number {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .room-superior .room-number {
+            background-color: #ffebcc;
+            color: #cc6600;
+        }
+
+        .room-standard .room-number {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .room-exclusive .room-number {
+            background-color: #e0c8f0;
+            color: #4a235a;
+        }
+
+        .date-cell {
+            text-align: center;
+            padding: 8px 5px;
+            border-right: 1px solid #eee;
+            min-width: 40px;
+            height: 70px;
+            vertical-align: top;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .date-cell:hover {
+            background-color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .date-cell.selected {
+            background-color: rgba(52, 152, 219, 0.3) !important;
+            box-shadow: inset 0 0 0 2px #3498db;
+        }
+
+        .date-header {
+            font-weight: 600;
+            color: #1a5f7a;
+            margin-bottom: 5px;
+        }
+
+        /* Month color definitions - 12 distinct colors */
+        .month-january { background-color: #3498db !important; } /* Blue */
+        .month-february { background-color: #2ecc71 !important; } /* Green */
+        .month-march { background-color: #e74c3c !important; } /* Red */
+        .month-april { background-color: #f39c12 !important; } /* Orange */
+        .month-may { background-color: #9b59b6 !important; } /* Purple */
+        .month-june { background-color: #1abc9c !important; } /* Teal */
+        .month-july { background-color: #e67e22 !important; } /* Dark Orange */
+        .month-august { background-color: #34495e !important; } /* Dark Blue */
+        .month-september { background-color: #d35400 !important; } /* Brown */
+        .month-october { background-color: #16a085 !important; } /* Dark Teal */
+        .month-november { background-color: #8e44ad !important; } /* Violet */
+        .month-december { background-color: #c0392b !important; } /* Dark Red */
+
+        .month-header {
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            padding: 15px 5px;
+            position: sticky;
+            top: 60px;
+            z-index: 9;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .month-total-cell {
+            background-color: #f0f7fa !important;
+            font-weight: bold;
+            text-align: center;
+            padding: 12px 5px;
+            border-right: 1px solid #ddd;
+            border-bottom: 2px solid #1a5f7a;
+        }
+
+        .year-total-cell {
+            background-color: #1a5f7a !important;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 12px 5px;
+            border-right: 1px solid #1a5f7a;
+        }
+
+        .advance-paid {
+            background-color: #e8f6ef;
+            color: #27ae60;
+            font-weight: 600;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .advance-pending {
+            background-color: #fde8e8;
+            color: #e74c3c;
+            font-weight: 600;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .booking {
+            padding: 4px 6px;
+            border-radius: 4px;
+            margin-bottom: 3px;
+            font-size: 0.8rem;
+            color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .booking:hover {
+            opacity: 0.9;
+        }
+
+        .booking-ep {
+            background-color: #3498db;
+        }
+
+        .booking-cp {
+            background-color: #2ecc71;
+        }
+
+        .booking-map {
+            background-color: #e74c3c;
+        }
+
+        .empty-cell {
+            height: 70px;
+        }
+
+        .today {
+            background-color: #fffacd !important;
+        }
+
+        .weekend {
+            background-color: #f8f8f8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #1a5f7a;
+            font-weight: 700;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: #777;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-input:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: #1a5f7a;
+            color: white;
+        }
+
+        .btn-primary:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+
+        .sidebar-title {
+            font-size: 1.3rem;
+            color: #1a5f7a;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1a5f7a;
+        }
+
+        .monthly-summary {
+            margin-bottom: 30px;
+        }
+
+        .monthly-summary h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .month-summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .month-summary-item .month-name {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .month-summary-item .month-count {
+            font-weight: 700;
+            color: #1a5f7a;
+            background-color: #e6f2f5;
+            padding: 3px 10px;
+            border-radius: 12px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .month-summary-item .month-advance {
+            font-weight: 700;
+            color: #27ae60;
+            background-color: #e8f6ef;
+            padding: 3px 10px;
+            border-radius: 12px;
+            min-width: 60px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .year-total-summary {
+            background-color: #1a5f7a;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .year-total-summary h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .year-total-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .year-total-label {
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .advance-summary {
+            background-color: #27ae60;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .advance-summary h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .advance-total-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .advance-total-label {
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .meal-plan-summary {
+            margin-bottom: 30px;
+        }
+
+        .meal-plan-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .meal-plan-item .plan-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .plan-color.ep {
+            background-color: #3498db;
+        }
+
+        .plan-color.cp {
+            background-color: #2ecc71;
+        }
+
+        .plan-color.map {
+            background-color: #e74c3c;
+        }
+
+        .meal-plan-item .plan-count {
+            font-weight: 700;
+            color: #1a5f7a;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            height: 200px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+
+        .currency {
+            font-size: 0.8em;
+            margin-right: 2px;
+        }
+
+        .month-color-indicator {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .month-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .month-legend-item {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .room-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .room-checkbox-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .room-checkbox-item:hover {
+            background-color: #e9e9e9;
+        }
+
+        .room-checkbox-item.selected {
+            background-color: #d4edda;
+            border: 2px solid #28a745;
+        }
+
+        .room-checkbox-item.unavailable {
+            background-color: #f8d7da;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .room-checkbox {
+            margin-bottom: 5px;
+        }
+
+        .room-checkbox-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .room-category-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .selection-summary {
+            background-color: #f0f7fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .selection-summary h4 {
+            margin-bottom: 10px;
+            color: #1a5f7a;
+        }
+
+        .selection-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .select-all-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .select-all-btn {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .select-all-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .deselect-all-btn {
+            padding: 8px 15px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .deselect-all-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .bulk-guest-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .bulk-guest-info .form-group {
+            flex: 1;
+        }
+
+        .date-range-display {
+            background-color: #e8f4fc;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #1a5f7a;
+            text-align: center;
+        }
+
+        @media (max-width: 1400px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .summary-sidebar {
+                width: 100%;
+                order: -1;
+            }
+            
+            .reservation-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .current-month {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Resort Reservation Management</h1>
+            <p class="subtitle">15-room resort | One-year booking overview | Manager dashboard</p>
+        </header>
+        
+        <div class="dashboard-summary">
+            <div class="summary-card">
+                <h3>Total Rooms</h3>
+                <div class="value" id="total-rooms">15</div>
+                <div class="label">Available for booking</div>
+            </div>
+            <div class="summary-card">
+                <h3>Bookings This Month</h3>
+                <div class="value" id="month-bookings">0</div>
+                <div class="label" id="current-month-label">January 2026</div>
+            </div>
+            <div class="summary-card">
+                <h3>Yearly Bookings</h3>
+                <div class="value" id="year-bookings">0</div>
+                <div class="label">Jan 2026 - Dec 2026</div>
+            </div>
+            <div class="summary-card">
+                <h3>Occupancy Rate</h3>
+                <div class="value" id="occupancy-rate">0%</div>
+                <div class="label">Average monthly</div>
+            </div>
+        </div>
+        
+        <div class="financial-summary">
+            <div class="financial-stats">
+                <div class="financial-stat">
+                    <h4>Total Advance Received</h4>
+                    <div class="financial-value advance" id="total-advance">₹0</div>
+                    <div class="financial-label">Across all bookings</div>
+                </div>
+                <div class="financial-stat">
+                    <h4>Pending Payments</h4>
+                    <div class="financial-value pending" id="pending-payments">₹0</div>
+                    <div class="financial-label">Balance to be collected</div>
+                </div>
+                <div class="financial-stat">
+                    <h4>Advance This Month</h4>
+                    <div class="financial-value advance" id="advance-this-month">₹0</div>
+                    <div class="financial-label" id="current-month-advance-label">January 2026</div>
+                </div>
+                <div class="financial-stat">
+                    <h4>Projected Revenue</h4>
+                    <div class="financial-value" id="projected-revenue">₹0</div>
+                    <div class="financial-label">Based on current bookings</div>
+                </div>
+            </div>
+            
+            <div class="month-legend">
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #3498db;"></span>
+                    <span>JAN</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #2ecc71;"></span>
+                    <span>FEB</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #e74c3c;"></span>
+                    <span>MAR</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #f39c12;"></span>
+                    <span>APR</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #9b59b6;"></span>
+                    <span>MAY</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #1abc9c;"></span>
+                    <span>JUN</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #e67e22;"></span>
+                    <span>JUL</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #34495e;"></span>
+                    <span>AUG</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #d35400;"></span>
+                    <span>SEP</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #16a085;"></span>
+                    <span>OCT</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #8e44ad;"></span>
+                    <span>NOV</span>
+                </div>
+                <div class="month-legend-item">
+                    <span class="month-color-indicator" style="background-color: #c0392b;"></span>
+                    <span>DEC</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reservation-controls">
+            <div class="date-selector">
+                <label for="checkin-date">Check-in Date</label>
+                <input type="text" id="checkin-date" class="flatpickr-input" placeholder="Select check-in date">
+            </div>
+            
+            <div class="date-selector">
+                <label for="checkout-date">Check-out Date</label>
+                <input type="text" id="checkout-date" class="flatpickr-input" placeholder="Select check-out date">
+            </div>
+            
+            <div class="room-filter">
+                <label for="room-type">Room Category</label>
+                <select id="room-type">
+                    <option value="all">All Rooms</option>
+                    <option value="superior">Superior Deluxe</option>
+                    <option value="standard">Standard Deluxe</option>
+                    <option value="exclusive">Exclusive Hilltop</option>
+                </select>
+            </div>
+            
+            <div class="meal-plan-filter">
+                <label for="meal-plan">Meal Plan</label>
+                <select id="meal-plan">
+                    <option value="all">All Meal Plans</option>
+                    <option value="EP">EP (European Plan)</option>
+                    <option value="CP">CP (Continental Plan)</option>
+                    <option value="MAP">MAP (Modified American Plan)</option>
+                </select>
+            </div>
+            
+            <div class="current-month" id="current-month">January 2026</div>
+        </div>
+        
+        <div class="booking-actions">
+            <button class="action-button add-booking" id="add-booking-btn">
+                <i class="fas fa-plus-circle"></i> Add Single Booking
+            </button>
+            <button class="action-button bulk-booking" id="bulk-booking-btn">
+                <i class="fas fa-layer-group"></i> Bulk Booking
+            </button>
+            <button class="action-button quick-check" id="quick-check-btn">
+                <i class="fas fa-search"></i> Check Availability
+            </button>
+            <button class="action-button clear-selection" id="clear-selection-btn">
+                <i class="fas fa-times-circle"></i> Clear Selection
+            </button>
+        </div>
+        
+        <div class="room-categories">
+            <div class="category superior">
+                <div class="room-legend" style="background-color: #ffebcc;"></div>
+                <span>Superior Deluxe (Rooms 4,5,6,7,12,13)</span>
+            </div>
+            <div class="category standard">
+                <div class="room-legend" style="background-color: #d4edda;"></div>
+                <span>Standard Deluxe (Rooms 1,2,3,4,8,9,10,11)</span>
+            </div>
+            <div class="category exclusive">
+                <div class="room-legend" style="background-color: #e0c8f0;"></div>
+                <span>Exclusive Hilltop (Rooms 14,15)</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="reservation-chart-container">
+                <table id="reservation-table">
+                    <thead>
+                        <tr id="month-header-row">
+                            <th colspan="2">Room & Advance</th>
+                            <!-- Month headers will be populated by JavaScript -->
+                        </tr>
+                        <tr id="date-header-row">
+                            <th>Room</th>
+                            <th>Advance Paid</th>
+                            <!-- Dates will be populated by JavaScript -->
+                        </tr>
+                    </thead>
+                    <tbody id="reservation-body">
+                        <!-- Room rows will be populated by JavaScript -->
+                    </tbody>
+                    <tfoot id="summary-footer">
+                        <!-- Monthly and yearly totals will be populated by JavaScript -->
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div class="summary-sidebar">
+                <h2 class="sidebar-title">Booking & Financial Summary</h2>
+                
+                <div class="year-total-summary">
+                    <h3>Total Bookings This Year</h3>
+                    <div class="year-total-value" id="sidebar-year-total">0</div>
+                    <div class="year-total-label">Jan 2026 - Dec 2026</div>
+                </div>
+                
+                <div class="advance-summary">
+                    <h3>Total Advance Received</h3>
+                    <div class="advance-total-value" id="sidebar-advance-total">₹0</div>
+                    <div class="advance-total-label">Across all bookings</div>
+                </div>
+                
+                <div class="monthly-summary">
+                    <h3>Monthly Breakdown</h3>
+                    <div id="monthly-summary-list">
+                        <!-- Monthly totals will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="meal-plan-summary">
+                    <h3>Meal Plan Distribution</h3>
+                    <div id="meal-plan-summary-list">
+                        <!-- Meal plan totals will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Resort Reservation System | © 2026 Resort Management | Data is stored locally in your browser</p>
+        </footer>
+    </div>
+    
+    <!-- Single Booking Modal with Availability Check First -->
+    <div class="modal" id="booking-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Booking</h2>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            
+            <form id="booking-form">
+                <!-- STEP 1: Availability Check -->
+                <div class="availability-check-step">
+                    <div class="step-indicator">STEP 1: Check Availability</div>
+                    
+                    <div class="availability-check-row">
+                        <div class="form-group">
+                            <label for="modal-checkin" class="form-label">Check-in Date</label>
+                            <input type="text" id="modal-checkin" class="form-input flatpickr-input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="modal-checkout" class="form-label">Check-out Date</label>
+                            <input type="text" id="modal-checkout" class="form-input flatpickr-input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="modal-room-check" class="form-label">Room Number</label>
+                            <select id="modal-room-check" class="form-input" required>
+                                <option value="">Select a room</option>
+                                <!-- Room options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                        
+                        <button type="button" class="availability-check-btn" id="check-availability-btn">
+                            <i class="fas fa-search"></i> Check Availability
+                        </button>
+                    </div>
+                    
+                    <div id="availability-message" class="availability-message">
+                        <!-- Availability message will appear here -->
+                    </div>
+                </div>
+                
+                <!-- STEP 2: Booking Details (Initially Disabled) -->
+                <div id="booking-details-section" class="booking-details-section">
+                    <h3 style="color: #1a5f7a; margin-bottom: 20px;">STEP 2: Guest Information & Payment</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guest-name" class="form-label">Guest Name</label>
+                            <input type="text" id="guest-name" class="form-input" required disabled>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guest-phone" class="form-label">Phone Number</label>
+                            <input type="tel" id="guest-phone" class="form-input" required disabled>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modal-room" class="form-label">Room Number</label>
+                            <select id="modal-room" class="form-input" required disabled>
+                                <option value="">Select a room</option>
+                                <!-- Room options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="modal-meal-plan" class="form-label">Meal Plan</label>
+                            <select id="modal-meal-plan" class="form-input" required disabled>
+                                <option value="">Select meal plan</option>
+                                <option value="EP">EP (European Plan - No meals)</option>
+                                <option value="CP">CP (Continental Plan - Breakfast only)</option>
+                                <option value="MAP">MAP (Modified American Plan - Breakfast & Dinner)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="total-amount" class="form-label">Total Amount (₹)</label>
+                            <input type="number" id="total-amount" class="form-input" min="0" step="100" required disabled>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="advance-paid" class="form-label">Advance Paid (₹)</label>
+                            <input type="number" id="advance-paid" class="form-input" min="0" step="100" required disabled>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment-status" class="form-label">Payment Status</label>
+                        <select id="payment-status" class="form-input" disabled>
+                            <option value="advance">Advance Paid</option>
+                            <option value="partial">Partial Payment</option>
+                            <option value="pending">Payment Pending</option>
+                            <option value="full">Fully Paid</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="booking-notes" class="form-label">Special Requests / Notes</label>
+                        <textarea id="booking-notes" class="form-input" rows="3" disabled></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-booking">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="save-booking-btn" disabled>Save Booking</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Bulk Booking Modal (Unchanged) -->
+    <div class="modal" id="bulk-booking-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Bulk Booking - Multiple Rooms</h2>
+                <button class="close-modal" id="close-bulk-modal">&times;</button>
+            </div>
+            
+            <form id="bulk-booking-form">
+                <div class="date-range-display" id="bulk-date-range">
+                    <!-- Date range will be populated by JavaScript -->
+                </div>
+                
+                <div class="bulk-guest-info">
+                    <div class="form-group">
+                        <label for="bulk-guest-name" class="form-label">Guest/Group Name</label>
+                        <input type="text" id="bulk-guest-name" class="form-input" required placeholder="e.g., Smith Family, ABC Company">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bulk-guest-phone" class="form-label">Contact Number</label>
+                        <input type="tel" id="bulk-guest-phone" class="form-input" required>
+                    </div>
+                </div>
+                
+                <div class="selection-summary">
+                    <h4>Select Rooms for Bulk Booking</h4>
+                    <div class="selection-details">
+                        <div>
+                            <strong>Selected Dates:</strong> 
+                            <span id="selected-dates-display">No dates selected</span>
+                        </div>
+                        <div>
+                            <strong>Selected Rooms:</strong> 
+                            <span id="selected-rooms-count">0</span> / 15
+                        </div>
+                    </div>
+                    <div class="select-all-controls">
+                        <button type="button" class="select-all-btn" id="select-all-rooms">
+                            <i class="fas fa-check-square"></i> Select All Rooms
+                        </button>
+                        <button type="button" class="deselect-all-btn" id="deselect-all-rooms">
+                            <i class="fas fa-times-circle"></i> Deselect All
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="room-selection-grid" id="room-selection-grid">
+                    <!-- Room checkboxes will be populated by JavaScript -->
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bulk-meal-plan" class="form-label">Meal Plan</label>
+                        <select id="bulk-meal-plan" class="form-input" required>
+                            <option value="">Select meal plan for all rooms</option>
+                            <option value="EP">EP (European Plan - No meals)</option>
+                            <option value="CP">CP (Continental Plan - Breakfast only)</option>
+                            <option value="MAP">MAP (Modified American Plan - Breakfast & Dinner)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bulk-payment-status" class="form-label">Payment Status</label>
+                        <select id="bulk-payment-status" class="form-input">
+                            <option value="advance">Advance Paid</option>
+                            <option value="partial">Partial Payment</option>
+                            <option value="pending">Payment Pending</option>
+                            <option value="full">Fully Paid</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bulk-total-amount" class="form-label">Total Amount (₹)</label>
+                        <input type="number" id="bulk-total-amount" class="form-input" min="0" step="100" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bulk-advance-paid" class="form-label">Advance Paid (₹)</label>
+                        <input type="number" id="bulk-advance-paid" class="form-input" min="0" step="100" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bulk-booking-notes" class="form-label">Special Requests / Notes</label>
+                    <textarea id="bulk-booking-notes" class="form-input" rows="3" placeholder="Any special requirements for the group"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-label">Booking Summary</div>
+                    <div id="bulk-booking-summary" style="background-color: #f0f7fa; padding: 15px; border-radius: 6px;">
+                        <p><strong>No rooms selected yet.</strong> Select rooms from the grid above.</p>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-bulk-booking">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm Bulk Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Room configuration
+        const rooms = [
+            { number: 1, category: 'standard' },
+            { number: 2, category: 'standard' },
+            { number: 3, category: 'standard' },
+            { number: 4, category: 'both' }, // Appears in both superior and standard
+            { number: 5, category: 'superior' },
+            { number: 6, category: 'superior' },
+            { number: 7, category: 'superior' },
+            { number: 8, category: 'standard' },
+            { number: 9, category: 'standard' },
+            { number: 10, category: 'standard' },
+            { number: 11, category: 'standard' },
+            { number: 12, category: 'superior' },
+            { number: 13, category: 'superior' },
+            { number: 14, category: 'exclusive' },
+            { number: 15, category: 'exclusive' }
+        ];
+        
+        // Meal plans
+        const mealPlans = ['EP', 'CP', 'MAP'];
+        
+        // Month colors mapping
+        const monthColors = {
+            0: { name: 'JAN', class: 'month-january', color: '#3498db' },
+            1: { name: 'FEB', class: 'month-february', color: '#2ecc71' },
+            2: { name: 'MAR', class: 'month-march', color: '#e74c3c' },
+            3: { name: 'APR', class: 'month-april', color: '#f39c12' },
+            4: { name: 'MAY', class: 'month-may', color: '#9b59b6' },
+            5: { name: 'JUN', class: 'month-june', color: '#1abc9c' },
+            6: { name: 'JUL', class: 'month-july', color: '#e67e22' },
+            7: { name: 'AUG', class: 'month-august', color: '#34495e' },
+            8: { name: 'SEP', class: 'month-september', color: '#d35400' },
+            9: { name: 'OCT', class: 'month-october', color: '#16a085' },
+            10: { name: 'NOV', class: 'month-november', color: '#8e44ad' },
+            11: { name: 'DEC', class: 'month-december', color: '#c0392b' }
+        };
+        
+        // Sample bookings data with advance payment
+        let bookings = [
+            { 
+                id: 1, 
+                guest: 'John Smith', 
+                phone: '555-1234', 
+                room: 5, 
+                mealPlan: 'CP', 
+                checkin: '2026-01-15', 
+                checkout: '2026-01-20',
+                totalAmount: 25000,
+                advancePaid: 10000,
+                paymentStatus: 'advance',
+                notes: 'Early check-in requested'
+            },
+            { 
+                id: 2, 
+                guest: 'Maria Garcia', 
+                phone: '555-5678', 
+                room: 14, 
+                mealPlan: 'MAP', 
+                checkin: '2026-02-10', 
+                checkout: '2026-02-15',
+                totalAmount: 45000,
+                advancePaid: 45000,
+                paymentStatus: 'full',
+                notes: 'Honeymoon couple'
+            },
+            { 
+                id: 3, 
+                guest: 'Robert Johnson', 
+                phone: '555-8765', 
+                room: 4, 
+                mealPlan: 'EP', 
+                checkin: '2026-01-22', 
+                checkout: '2026-01-25',
+                totalAmount: 18000,
+                advancePaid: 5000,
+                paymentStatus: 'partial',
+                notes: ''
+            },
+            { 
+                id: 4, 
+                guest: 'Sarah Williams', 
+                phone: '555-4321', 
+                room: 9, 
+                mealPlan: 'CP', 
+                checkin: '2026-03-05', 
+                checkout: '2026-03-10',
+                totalAmount: 22000,
+                advancePaid: 0,
+                paymentStatus: 'pending',
+                notes: 'Will pay on arrival'
+            },
+            { 
+                id: 5, 
+                guest: 'David Brown', 
+                phone: '555-9876', 
+                room: 12, 
+                mealPlan: 'MAP', 
+                checkin: '2026-01-18', 
+                checkout: '2026-01-22',
+                totalAmount: 32000,
+                advancePaid: 15000,
+                paymentStatus: 'advance',
+                notes: 'Vegetarian meals required'
+            },
+            { 
+                id: 6, 
+                guest: 'Lisa Chen', 
+                phone: '555-2468', 
+                room: 3, 
+                mealPlan: 'EP', 
+                checkin: '2026-02-14', 
+                checkout: '2026-02-16',
+                totalAmount: 12000,
+                advancePaid: 12000,
+                paymentStatus: 'full',
+                notes: 'Anniversary celebration'
+            },
+            { 
+                id: 7, 
+                guest: 'Michael Taylor', 
+                phone: '555-1357', 
+                room: 7, 
+                mealPlan: 'CP', 
+                checkin: '2026-02-28', 
+                checkout: '2026-03-02',
+                totalAmount: 20000,
+                advancePaid: 8000,
+                paymentStatus: 'partial',
+                notes: 'Business trip'
+            }
+        ];
+        
+        // Variables for tracking monthly and yearly totals
+        let monthlyTotals = {};
+        let monthlyAdvance = {};
+        let yearlyTotal = 0;
+        let totalAdvance = 0;
+        let totalPending = 0;
+        let monthlyChart = null;
+        
+        // Variables for bulk booking
+        let selectedDateRange = { checkin: null, checkout: null };
+        let selectedRooms = [];
+        let selectedDateCells = [];
+        
+        // Variables for single booking availability check
+        let availabilityChecked = false;
+        let availableRoomNumber = null;
+        let availableCheckinDate = null;
+        let availableCheckoutDate = null;
+        
+        // Initialize calendar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize date pickers
+            flatpickr("#checkin-date", {
+                defaultDate: "today",
+                minDate: "today",
+                maxDate: new Date().fp_incr(365),
+                onChange: function(selectedDates, dateStr) {
+                    selectedDateRange.checkin = dateStr;
+                    updateReservationChart();
+                }
+            });
+            
+            flatpickr("#checkout-date", {
+                defaultDate: new Date().fp_incr(7),
+                minDate: "today",
+                maxDate: new Date().fp_incr(365),
+                onChange: function(selectedDates, dateStr) {
+                    selectedDateRange.checkout = dateStr;
+                    updateReservationChart();
+                }
+            });
+            
+            flatpickr("#modal-checkin", {
+                minDate: "today",
+                maxDate: new Date().fp_incr(365),
+                onChange: function() {
+                    // Reset availability check when dates change
+                    resetAvailabilityCheck();
+                }
+            });
+            
+            flatpickr("#modal-checkout", {
+                minDate: "today",
+                maxDate: new Date().fp_incr(365),
+                onChange: function() {
+                    // Reset availability check when dates change
+                    resetAvailabilityCheck();
+                }
+            });
+            
+            // Populate room dropdown in both availability check and booking form
+            populateRoomDropdowns();
+            
+            // Set current month display
+            const today = new Date();
+            const currentMonthElement = document.getElementById('current-month');
+            currentMonthElement.textContent = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            // Load bookings from localStorage if available
+            const savedBookings = localStorage.getItem('resortBookings');
+            if (savedBookings) {
+                bookings = JSON.parse(savedBookings);
+            } else {
+                // Save initial bookings to localStorage
+                localStorage.setItem('resortBookings', JSON.stringify(bookings));
+            }
+            
+            // Initial render of reservation chart
+            updateReservationChart();
+            
+            // Event listeners for filters
+            document.getElementById('room-type').addEventListener('change', updateReservationChart);
+            document.getElementById('meal-plan').addEventListener('change', updateReservationChart);
+            
+            // Modal event listeners
+            document.getElementById('add-booking-btn').addEventListener('click', openBookingModal);
+            document.getElementById('bulk-booking-btn').addEventListener('click', openBulkBookingModal);
+            document.getElementById('quick-check-btn').addEventListener('click', checkAvailability);
+            document.getElementById('clear-selection-btn').addEventListener('click', clearSelection);
+            
+            document.getElementById('close-modal').addEventListener('click', closeBookingModal);
+            document.getElementById('cancel-booking').addEventListener('click', closeBookingModal);
+            document.getElementById('booking-form').addEventListener('submit', saveBooking);
+            
+            // Availability check button
+            document.getElementById('check-availability-btn').addEventListener('click', checkSingleRoomAvailability);
+            
+            // Room selection change in availability check
+            document.getElementById('modal-room-check').addEventListener('change', resetAvailabilityCheck);
+            
+            document.getElementById('close-bulk-modal').addEventListener('click', closeBulkBookingModal);
+            document.getElementById('cancel-bulk-booking').addEventListener('click', closeBulkBookingModal);
+            document.getElementById('bulk-booking-form').addEventListener('submit', saveBulkBooking);
+            
+            // Bulk booking controls
+            document.getElementById('select-all-rooms').addEventListener('click', selectAllRooms);
+            document.getElementById('deselect-all-rooms').addEventListener('click', deselectAllRooms);
+            
+            // Close modal when clicking outside
+            document.getElementById('booking-modal').addEventListener('click', function(e) {
+                if (e.target.id === 'booking-modal') {
+                    closeBookingModal();
+                }
+            });
+            
+            document.getElementById('bulk-booking-modal').addEventListener('click', function(e) {
+                if (e.target.id === 'bulk-booking-modal') {
+                    closeBulkBookingModal();
+                }
+            });
+        });
+        
+        // Populate room dropdowns in both selects
+        function populateRoomDropdowns() {
+            const roomSelectCheck = document.getElementById('modal-room-check');
+            const roomSelectBooking = document.getElementById('modal-room');
+            
+            // Clear existing options
+            roomSelectCheck.innerHTML = '<option value="">Select a room</option>';
+            roomSelectBooking.innerHTML = '<option value="">Select a room</option>';
+            
+            rooms.forEach(room => {
+                const option1 = document.createElement('option');
+                const option2 = document.createElement('option');
+                option1.value = room.number;
+                option2.value = room.number;
+                
+                let categoryText = '';
+                if (room.category === 'superior') categoryText = ' (Superior)';
+                else if (room.category === 'standard') categoryText = ' (Standard)';
+                else if (room.category === 'exclusive') categoryText = ' (Exclusive)';
+                else if (room.category === 'both') categoryText = ' (Superior/Standard)';
+                
+                option1.textContent = `Tent ${room.number}${categoryText}`;
+                option2.textContent = `Tent ${room.number}${categoryText}`;
+                roomSelectCheck.appendChild(option1);
+                roomSelectBooking.appendChild(option2);
+            });
+        }
+        
+        // Reset availability check status
+        function resetAvailabilityCheck() {
+            availabilityChecked = false;
+            availableRoomNumber = null;
+            availableCheckinDate = null;
+            availableCheckoutDate = null;
+            
+            // Hide availability message
+            const availabilityMsg = document.getElementById('availability-message');
+            availabilityMsg.style.display = 'none';
+            availabilityMsg.className = 'availability-message';
+            availabilityMsg.innerHTML = '';
+            
+            // Disable booking details section
+            disableBookingDetailsSection(true);
+        }
+        
+        // Disable or enable booking details section
+        function disableBookingDetailsSection(disabled) {
+            const bookingSection = document.getElementById('booking-details-section');
+            const guestName = document.getElementById('guest-name');
+            const guestPhone = document.getElementById('guest-phone');
+            const modalRoom = document.getElementById('modal-room');
+            const modalMealPlan = document.getElementById('modal-meal-plan');
+            const totalAmount = document.getElementById('total-amount');
+            const advancePaid = document.getElementById('advance-paid');
+            const paymentStatus = document.getElementById('payment-status');
+            const bookingNotes = document.getElementById('booking-notes');
+            const saveBtn = document.getElementById('save-booking-btn');
+            
+            if (disabled) {
+                bookingSection.classList.remove('active');
+                guestName.disabled = true;
+                guestPhone.disabled = true;
+                modalRoom.disabled = true;
+                modalMealPlan.disabled = true;
+                totalAmount.disabled = true;
+                advancePaid.disabled = true;
+                paymentStatus.disabled = true;
+                bookingNotes.disabled = true;
+                saveBtn.disabled = true;
+            } else {
+                bookingSection.classList.add('active');
+                guestName.disabled = false;
+                guestPhone.disabled = false;
+                modalRoom.disabled = false;
+                modalMealPlan.disabled = false;
+                totalAmount.disabled = false;
+                advancePaid.disabled = false;
+                paymentStatus.disabled = false;
+                bookingNotes.disabled = false;
+                saveBtn.disabled = false;
+                
+                // Set the room value that was checked and make it read-only
+                if (availableRoomNumber) {
+                    modalRoom.value = availableRoomNumber;
+                    modalRoom.disabled = true; // Make it read-only since availability was checked for this room
+                }
+            }
+        }
+        
+        // Check single room availability before allowing booking
+        function checkSingleRoomAvailability() {
+            const checkinDate = document.getElementById('modal-checkin').value;
+            const checkoutDate = document.getElementById('modal-checkout').value;
+            const roomNumber = parseInt(document.getElementById('modal-room-check').value);
+            
+            // Validate inputs
+            if (!checkinDate || !checkoutDate || !roomNumber) {
+                alert('Please select check-in date, check-out date, and room number.');
+                return;
+            }
+            
+            if (new Date(checkoutDate) <= new Date(checkinDate)) {
+                alert('Check-out date must be after check-in date');
+                return;
+            }
+            
+            // Check if room is available
+            const isAvailable = checkRoomAvailability(roomNumber, checkinDate, checkoutDate);
+            
+            const availabilityMsg = document.getElementById('availability-message');
+            availabilityMsg.style.display = 'block';
+            
+            if (isAvailable) {
+                // Room is available
+                availabilityMsg.className = 'availability-message availability-success';
+                
+                // Find conflicting bookings to show if any
+                const conflicts = findConflictingBookings(roomNumber, checkinDate, checkoutDate);
+                
+                if (conflicts.length > 0) {
+                    // This should not happen since we already checked availability, but just in case
+                    availabilityMsg.innerHTML = `
+                        <i class="fas fa-check-circle"></i> 
+                        <strong>Room Tent ${roomNumber} is available!</strong><br>
+                        No conflicts with existing bookings.
+                    `;
+                } else {
+                    availabilityMsg.innerHTML = `
+                        <i class="fas fa-check-circle"></i> 
+                        <strong>✓ Room Tent ${roomNumber} is available!</strong><br>
+                        You can proceed with booking for ${new Date(checkinDate).toLocaleDateString()} to ${new Date(checkoutDate).toLocaleDateString()}.
+                    `;
+                }
+                
+                // Store availability information
+                availabilityChecked = true;
+                availableRoomNumber = roomNumber;
+                availableCheckinDate = checkinDate;
+                availableCheckoutDate = checkoutDate;
+                
+                // Enable booking details section
+                disableBookingDetailsSection(false);
+                
+                // Pre-fill dates in the booking section (read-only)
+                document.getElementById('modal-checkin').value = checkinDate;
+                document.getElementById('modal-checkout').value = checkoutDate;
+                
+            } else {
+                // Room is not available - find conflicting bookings
+                const conflicts = findConflictingBookings(roomNumber, checkinDate, checkoutDate);
+                
+                availabilityMsg.className = 'availability-message availability-error';
+                
+                let conflictHtml = '<i class="fas fa-times-circle"></i> ';
+                conflictHtml += `<strong>✗ Room Tent ${roomNumber} is NOT available for the selected dates!</strong><br>`;
+                conflictHtml += 'Conflicting bookings:<br><ul style="margin-top: 8px; margin-left: 20px;">';
+                
+                conflicts.forEach(booking => {
+                    conflictHtml += `<li>${booking.guest}: ${new Date(booking.checkin).toLocaleDateString()} to ${new Date(booking.checkout).toLocaleDateString()}</li>`;
+                });
+                
+                conflictHtml += '</ul>';
+                conflictHtml += '<p style="margin-top: 10px;">Please select different dates or another room.</p>';
+                
+                availabilityMsg.innerHTML = conflictHtml;
+                
+                // Reset availability check
+                availabilityChecked = false;
+                availableRoomNumber = null;
+                availableCheckinDate = null;
+                availableCheckoutDate = null;
+                
+                // Disable booking details section
+                disableBookingDetailsSection(true);
+            }
+        }
+        
+        // Find conflicting bookings for a room and date range
+        function findConflictingBookings(roomNumber, checkinDate, checkoutDate) {
+            const checkin = new Date(checkinDate);
+            const checkout = new Date(checkoutDate);
+            const conflicts = [];
+            
+            bookings.forEach(booking => {
+                if (booking.room === roomNumber) {
+                    const bookingCheckin = new Date(booking.checkin);
+                    const bookingCheckout = new Date(booking.checkout);
+                    
+                    // Check for date overlap
+                    if (checkin < bookingCheckout && checkout > bookingCheckin) {
+                        conflicts.push(booking);
+                    }
+                }
+            });
+            
+            return conflicts;
+        }
+        
+        // Generate dates for the next year with color-coded month headers
+        function generateDateHeaders() {
+            const monthHeaderRow = document.querySelector('#month-header-row');
+            const dateHeaderRow = document.querySelector('#date-header-row');
+            
+            // Clear existing headers except the first ones
+            while (monthHeaderRow.children.length > 2) {
+                monthHeaderRow.removeChild(monthHeaderRow.lastChild);
+            }
+            while (dateHeaderRow.children.length > 2) {
+                dateHeaderRow.removeChild(dateHeaderRow.lastChild);
+            }
+            
+            const today = new Date();
+            const endDate = new Date();
+            endDate.setFullYear(today.getFullYear() + 1);
+            
+            const currentDate = new Date(today);
+            currentDate.setDate(1); // Start from the first day of current month
+            
+            let currentMonth = currentDate.getMonth();
+            let currentMonthName = monthColors[currentMonth].name;
+            let currentMonthClass = monthColors[currentMonth].class;
+            let daysInCurrentMonth = 0;
+            let monthStartIndex = 2; // Start after room and advance columns
+            
+            while (currentDate <= endDate) {
+                // Count days in current month
+                daysInCurrentMonth++;
+                
+                // Check if month has changed or we've reached the end
+                const nextDate = new Date(currentDate);
+                nextDate.setDate(nextDate.getDate() + 1);
+                
+                if (nextDate > endDate || nextDate.getMonth() !== currentMonth) {
+                    // Month has ended, create month header
+                    const monthTh = document.createElement('th');
+                    monthTh.className = `month-header ${currentMonthClass}`;
+                    monthTh.colSpan = daysInCurrentMonth;
+                    monthTh.textContent = currentMonthName;
+                    monthTh.title = `${currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} - ${daysInCurrentMonth} days`;
+                    monthHeaderRow.appendChild(monthTh);
+                    
+                    // Reset for next month
+                    if (nextDate <= endDate) {
+                        currentMonth = nextDate.getMonth();
+                        currentMonthName = monthColors[currentMonth].name;
+                        currentMonthClass = monthColors[currentMonth].class;
+                        daysInCurrentMonth = 0;
+                    }
+                }
+                
+                // Create day header
+                const dayTh = document.createElement('th');
+                dayTh.textContent = currentDate.getDate();
+                dayTh.title = currentDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                
+                // Add month color class to day headers
+                dayTh.classList.add(currentMonthClass);
+                
+                // Highlight today - override month color
+                if (currentDate.toDateString() === today.toDateString()) {
+                    dayTh.classList.add('today');
+                }
+                
+                // Highlight weekends - make slightly darker
+                const dayOfWeek = currentDate.getDay();
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    dayTh.style.opacity = '0.8';
+                }
+                
+                dateHeaderRow.appendChild(dayTh);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            // Update current month display
+            const currentMonthElement = document.getElementById('current-month');
+            const currentMonthIndex = today.getMonth();
+            const monthColor = monthColors[currentMonthIndex].color;
+            currentMonthElement.textContent = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            currentMonthElement.style.color = monthColor;
+        }
+        
+        // Calculate monthly and yearly booking totals and financials
+        function calculateTotals() {
+            // Reset totals
+            monthlyTotals = {};
+            monthlyAdvance = {};
+            yearlyTotal = 0;
+            totalAdvance = 0;
+            totalPending = 0;
+            
+            // Initialize all months
+            const today = new Date();
+            const endDate = new Date();
+            endDate.setFullYear(today.getFullYear() + 1);
+            
+            let currentDate = new Date(today);
+            currentDate.setDate(1);
+            
+            while (currentDate <= endDate) {
+                const monthYear = currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                monthlyTotals[monthYear] = 0;
+                monthlyAdvance[monthYear] = 0;
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+            
+            // Count bookings and advance per month
+            bookings.forEach(booking => {
+                const checkin = new Date(booking.checkin);
+                const checkout = new Date(booking.checkout);
+                
+                // Add advance payment to total
+                totalAdvance += booking.advancePaid;
+                totalPending += (booking.totalAmount - booking.advancePaid);
+                
+                // For each day of the booking, add to the monthly total
+                const currentDay = new Date(checkin);
+                while (currentDay < checkout) {
+                    const monthYear = currentDay.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    if (monthlyTotals[monthYear] !== undefined) {
+                        monthlyTotals[monthYear]++;
+                        yearlyTotal++;
+                        
+                        // Distribute advance proportionally across booking days
+                        const daysInBooking = Math.ceil((checkout - checkin) / (1000 * 60 * 60 * 24));
+                        const dailyAdvance = booking.advancePaid / daysInBooking;
+                        monthlyAdvance[monthYear] += dailyAdvance;
+                    }
+                    currentDay.setDate(currentDay.getDate() + 1);
+                }
+            });
+            
+            // Round advance values
+            Object.keys(monthlyAdvance).forEach(month => {
+                monthlyAdvance[month] = Math.round(monthlyAdvance[month]);
+            });
+        }
+        
+        // Update the reservation chart
+        function updateReservationChart() {
+            // Calculate totals first
+            calculateTotals();
+            
+            // Update dashboard summary
+            updateDashboardSummary();
+            
+            // Generate date headers with color-coded month names
+            generateDateHeaders();
+            
+            // Get filter values
+            const roomTypeFilter = document.getElementById('room-type').value;
+            const mealPlanFilter = document.getElementById('meal-plan').value;
+            
+            // Get date range from filters
+            const checkinDateStr = document.getElementById('checkin-date').value;
+            const checkoutDateStr = document.getElementById('checkout-date').value;
+            
+            // Update selected date range
+            if (checkinDateStr && checkoutDateStr) {
+                selectedDateRange.checkin = checkinDateStr;
+                selectedDateRange.checkout = checkoutDateStr;
+            }
+            
+            // Filter rooms based on selection
+            let filteredRooms = rooms;
+            if (roomTypeFilter !== 'all') {
+                filteredRooms = rooms.filter(room => room.category === roomTypeFilter || room.category === 'both');
+            }
+            
+            // Clear table body and footer
+            const tableBody = document.getElementById('reservation-body');
+            tableBody.innerHTML = '';
+            
+            const tableFooter = document.getElementById('summary-footer');
+            tableFooter.innerHTML = '';
+            
+            // Reset selected date cells
+            selectedDateCells = [];
+            
+            // Create a row for each room
+            filteredRooms.forEach(room => {
+                const row = document.createElement('tr');
+                
+                // Room cell
+                const roomCell = document.createElement('td');
+                roomCell.className = `room-cell room-${room.category}`;
+                
+                const roomNumberDiv = document.createElement('div');
+                roomNumberDiv.className = 'room-number';
+                roomNumberDiv.textContent = `Tent ${room.number}`;
+                
+                // Add category label
+                const categorySpan = document.createElement('span');
+                categorySpan.style.display = 'block';
+                categorySpan.style.fontSize = '0.8rem';
+                categorySpan.style.fontWeight = 'normal';
+                
+                if (room.category === 'superior') categorySpan.textContent = 'Superior';
+                else if (room.category === 'standard') categorySpan.textContent = 'Standard';
+                else if (room.category === 'exclusive') categorySpan.textContent = 'Exclusive';
+                else if (room.category === 'both') categorySpan.textContent = 'Superior/Standard';
+                
+                roomCell.appendChild(roomNumberDiv);
+                roomCell.appendChild(categorySpan);
+                row.appendChild(roomCell);
+                
+                // Advance payment cell
+                const advanceCell = document.createElement('td');
+                advanceCell.className = 'advance-cell';
+                
+                // Calculate total advance for this room
+                let roomAdvance = 0;
+                bookings.forEach(booking => {
+                    if (booking.room === room.number) {
+                        roomAdvance += booking.advancePaid;
+                    }
+                });
+                
+                if (roomAdvance > 0) {
+                    advanceCell.innerHTML = `<div class="advance-paid">₹${roomAdvance.toLocaleString()}</div>`;
+                } else {
+                    advanceCell.innerHTML = `<div class="advance-pending">No Advance</div>`;
+                }
+                
+                row.appendChild(advanceCell);
+                
+                // Create date cells for the next year
+                const today = new Date();
+                const endDate = new Date();
+                endDate.setFullYear(today.getFullYear() + 1);
+                
+                const currentDate = new Date(today);
+                currentDate.setDate(1); // Start from the first day of current month
+                
+                let currentMonth = currentDate.getMonth();
+                let currentMonthClass = monthColors[currentMonth].class;
+                
+                while (currentDate <= endDate) {
+                    const dateCell = document.createElement('td');
+                    dateCell.className = `date-cell ${currentMonthClass}`;
+                    
+                    // Store date information
+                    const dateStr = currentDate.toISOString().split('T')[0];
+                    dateCell.dataset.date = dateStr;
+                    dateCell.dataset.roomNumber = room.number;
+                    
+                    // Check if it's today - override month color
+                    if (currentDate.toDateString() === new Date().toDateString()) {
+                        dateCell.classList.add('today');
+                    }
+                    
+                    // Check if it's weekend - make slightly darker
+                    const dayOfWeek = currentDate.getDay();
+                    if (dayOfWeek === 0 || dayOfWeek === 6) {
+                        dateCell.style.opacity = '0.8';
+                    }
+                    
+                    // Check for bookings on this date for this room
+                    const roomBookings = bookings.filter(booking => 
+                        booking.room === room.number && 
+                        new Date(booking.checkin) <= new Date(dateStr) && 
+                        new Date(booking.checkout) > new Date(dateStr)
+                    );
+                    
+                    // Apply meal plan filter
+                    let filteredBookings = roomBookings;
+                    if (mealPlanFilter !== 'all') {
+                        filteredBookings = roomBookings.filter(booking => booking.mealPlan === mealPlanFilter);
+                    }
+                    
+                    // Apply date range filter if set
+                    if (checkinDateStr && checkoutDateStr) {
+                        const checkinDate = new Date(checkinDateStr);
+                        const checkoutDate = new Date(checkoutDateStr);
+                        
+                        if (currentDate >= checkinDate && currentDate < checkoutDate) {
+                            // Date is within selected range - highlight it
+                            dateCell.classList.add('selected');
+                            selectedDateCells.push(dateCell);
+                        } else {
+                            dateCell.style.opacity = '0.5';
+                        }
+                    }
+                    
+                    // Display bookings for this date
+                    filteredBookings.forEach(booking => {
+                        const bookingDiv = document.createElement('div');
+                        bookingDiv.className = `booking booking-${booking.mealPlan.toLowerCase()}`;
+                        bookingDiv.textContent = booking.guest.split(' ')[0];
+                        
+                        // Add advance info to tooltip
+                        const advanceInfo = booking.advancePaid > 0 ? 
+                            `Advance: ₹${booking.advancePaid.toLocaleString()}` : 
+                            'No Advance';
+                        bookingDiv.title = `${booking.guest} | ${booking.mealPlan} | ${booking.checkin} to ${booking.checkout} | ${advanceInfo}`;
+                        bookingDiv.dataset.bookingId = booking.id;
+                        
+                        // Add click event to view booking details
+                        bookingDiv.addEventListener('click', function(e) {
+                            e.stopPropagation(); // Prevent date cell click
+                            viewBookingDetails(booking.id);
+                        });
+                        
+                        dateCell.appendChild(bookingDiv);
+                    });
+                    
+                    // Add click event for date cell selection
+                    dateCell.addEventListener('click', function() {
+                        handleDateCellClick(this);
+                    });
+                    
+                    row.appendChild(dateCell);
+                    
+                    // Check if month has changed
+                    const nextDate = new Date(currentDate);
+                    nextDate.setDate(nextDate.getDate() + 1);
+                    if (nextDate <= endDate && nextDate.getMonth() !== currentMonth) {
+                        currentMonth = nextDate.getMonth();
+                        currentMonthClass = monthColors[currentMonth].class;
+                    }
+                    
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Create summary rows for monthly and yearly totals
+            createSummaryRows();
+            
+            // Update sidebar with monthly breakdown
+            updateSidebarSummary();
+        }
+        
+        // Handle date cell click for selection
+        function handleDateCellClick(dateCell) {
+            // For now, just show that the cell is clickable
+            // In a more advanced version, you could implement range selection
+            alert(`Date: ${dateCell.dataset.date}\nRoom: Tent ${dateCell.dataset.roomNumber}\n\nClick "Bulk Booking" to book multiple rooms for selected dates.`);
+        }
+        
+        // Create summary rows for monthly and yearly totals
+        function createSummaryRows() {
+            const tableFooter = document.getElementById('summary-footer');
+            
+            // Monthly totals row
+            const monthlyRow = document.createElement('tr');
+            const monthlyLabelCell = document.createElement('td');
+            monthlyLabelCell.className = 'month-total-cell';
+            monthlyLabelCell.textContent = 'Monthly Totals';
+            monthlyLabelCell.style.position = 'sticky';
+            monthlyLabelCell.style.left = '0';
+            monthlyLabelCell.style.zIndex = '4';
+            monthlyRow.appendChild(monthlyLabelCell);
+            
+            // Monthly advance totals row
+            const monthlyAdvanceRow = document.createElement('tr');
+            const monthlyAdvanceLabelCell = document.createElement('td');
+            monthlyAdvanceLabelCell.className = 'month-total-cell';
+            monthlyAdvanceLabelCell.textContent = 'Monthly Advance';
+            monthlyAdvanceLabelCell.style.position = 'sticky';
+            monthlyAdvanceLabelCell.style.left = '0';
+            monthlyAdvanceLabelCell.style.zIndex = '4';
+            monthlyAdvanceRow.appendChild(monthlyAdvanceLabelCell);
+            
+            // Yearly totals row
+            const yearlyRow = document.createElement('tr');
+            const yearlyLabelCell = document.createElement('td');
+            yearlyLabelCell.className = 'year-total-cell';
+            yearlyLabelCell.textContent = 'Yearly Total';
+            yearlyLabelCell.style.position = 'sticky';
+            yearlyLabelCell.style.left = '0';
+            yearlyLabelCell.style.zIndex = '4';
+            yearlyRow.appendChild(yearlyLabelCell);
+            
+            // Yearly advance totals row
+            const yearlyAdvanceRow = document.createElement('tr');
+            const yearlyAdvanceLabelCell = document.createElement('td');
+            yearlyAdvanceLabelCell.className = 'year-total-cell';
+            yearlyAdvanceLabelCell.textContent = 'Yearly Advance';
+            yearlyAdvanceLabelCell.style.position = 'sticky';
+            yearlyAdvanceLabelCell.style.left = '0';
+            yearlyAdvanceLabelCell.style.zIndex = '4';
+            yearlyAdvanceRow.appendChild(yearlyAdvanceLabelCell);
+            
+            // Calculate days per month for the next year
+            const today = new Date();
+            const endDate = new Date();
+            endDate.setFullYear(today.getFullYear() + 1);
+            
+            const currentDate = new Date(today);
+            currentDate.setDate(1); // Start from the first day of current month
+            
+            let currentMonth = currentDate.getMonth();
+            let currentMonthClass = monthColors[currentMonth].class;
+            let currentMonthName = monthColors[currentMonth].name;
+            let daysInCurrentMonth = 0;
+            let monthlyBookingCount = 0;
+            let monthlyAdvanceCount = 0;
+            
+            while (currentDate <= endDate) {
+                // Count days in current month
+                daysInCurrentMonth++;
+                
+                // Count bookings for this day
+                const dateStr = currentDate.toISOString().split('T')[0];
+                const dayBookings = bookings.filter(booking => 
+                    new Date(booking.checkin) <= new Date(dateStr) && 
+                    new Date(booking.checkout) > new Date(dateStr)
+                );
+                monthlyBookingCount += dayBookings.length;
+                
+                // Calculate advance for this day
+                let dayAdvance = 0;
+                dayBookings.forEach(booking => {
+                    const daysInBooking = Math.ceil((new Date(booking.checkout) - new Date(booking.checkin)) / (1000 * 60 * 60 * 24));
+                    dayAdvance += booking.advancePaid / daysInBooking;
+                });
+                monthlyAdvanceCount += dayAdvance;
+                
+                // Check if month has changed or we've reached the end
+                const nextDate = new Date(currentDate);
+                nextDate.setDate(nextDate.getDate() + 1);
+                
+                if (nextDate > endDate || nextDate.getMonth() !== currentMonth) {
+                    // Month has ended, create monthly total cell
+                    const monthlyTotalCell = document.createElement('td');
+                    monthlyTotalCell.className = `month-total-cell ${currentMonthClass}`;
+                    monthlyTotalCell.colSpan = daysInCurrentMonth;
+                    monthlyTotalCell.textContent = monthlyBookingCount;
+                    monthlyTotalCell.title = `${currentMonthName} ${currentDate.getFullYear()}: ${monthlyBookingCount} booking days`;
+                    monthlyRow.appendChild(monthlyTotalCell);
+                    
+                    // Create monthly advance cell
+                    const monthlyAdvanceCell = document.createElement('td');
+                    monthlyAdvanceCell.className = `month-total-cell ${currentMonthClass}`;
+                    monthlyAdvanceCell.colSpan = daysInCurrentMonth;
+                    monthlyAdvanceCell.innerHTML = `₹${Math.round(monthlyAdvanceCount).toLocaleString()}`;
+                    monthlyAdvanceCell.title = `${currentMonthName} ${currentDate.getFullYear()}: ₹${Math.round(monthlyAdvanceCount).toLocaleString()} advance`;
+                    monthlyAdvanceRow.appendChild(monthlyAdvanceCell);
+                    
+                    // Create yearly total cell (empty for monthly row)
+                    const yearlyEmptyCell = document.createElement('td');
+                    yearlyEmptyCell.className = 'year-total-cell';
+                    yearlyEmptyCell.colSpan = daysInCurrentMonth;
+                    yearlyRow.appendChild(yearlyEmptyCell);
+                    
+                    // Create yearly advance cell (empty for monthly row)
+                    const yearlyAdvanceEmptyCell = document.createElement('td');
+                    yearlyAdvanceEmptyCell.className = 'year-total-cell';
+                    yearlyAdvanceEmptyCell.colSpan = daysInCurrentMonth;
+                    yearlyAdvanceRow.appendChild(yearlyAdvanceEmptyCell);
+                    
+                    // Reset for next month
+                    if (nextDate <= endDate) {
+                        currentMonth = nextDate.getMonth();
+                        currentMonthClass = monthColors[currentMonth].class;
+                        currentMonthName = monthColors[currentMonth].name;
+                        daysInCurrentMonth = 0;
+                        monthlyBookingCount = 0;
+                        monthlyAdvanceCount = 0;
+                    }
+                }
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            // Add yearly total cell at the end
+            const yearlyTotalCell = document.createElement('td');
+            yearlyTotalCell.className = 'year-total-cell';
+            yearlyTotalCell.colSpan = 365; // Approximate days in a year
+            yearlyTotalCell.textContent = yearlyTotal;
+            yearlyTotalCell.title = `Total booking days for the year: ${yearlyTotal}`;
+            yearlyTotalCell.style.position = 'sticky';
+            yearlyTotalCell.style.right = '0';
+            yearlyRow.appendChild(yearlyTotalCell);
+            
+            // Add yearly advance cell at the end
+            const yearlyAdvanceCell = document.createElement('td');
+            yearlyAdvanceCell.className = 'year-total-cell';
+            yearlyAdvanceCell.colSpan = 365;
+            yearlyAdvanceCell.innerHTML = `₹${Math.round(totalAdvance).toLocaleString()}`;
+            yearlyAdvanceCell.title = `Total advance for the year: ₹${Math.round(totalAdvance).toLocaleString()}`;
+            yearlyAdvanceCell.style.position = 'sticky';
+            yearlyAdvanceCell.style.right = '0';
+            yearlyAdvanceRow.appendChild(yearlyAdvanceCell);
+            
+            // Add rows to footer
+            tableFooter.appendChild(monthlyRow);
+            tableFooter.appendChild(monthlyAdvanceRow);
+            tableFooter.appendChild(yearlyRow);
+            tableFooter.appendChild(yearlyAdvanceRow);
+        }
+        
+        // Update dashboard summary cards
+        function updateDashboardSummary() {
+            const today = new Date();
+            const currentMonthYear = today.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            
+            // Update current month label
+            document.getElementById('current-month-label').textContent = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            document.getElementById('current-month-advance-label').textContent = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            // Update monthly bookings
+            const monthBookings = monthlyTotals[currentMonthYear] || 0;
+            document.getElementById('month-bookings').textContent = monthBookings;
+            
+            // Update yearly bookings
+            document.getElementById('year-bookings').textContent = yearlyTotal;
+            document.getElementById('sidebar-year-total').textContent = yearlyTotal;
+            
+            // Calculate occupancy rate (average monthly)
+            const totalRoomDays = 15 * 365; // 15 rooms * 365 days
+            const occupancyRate = totalRoomDays > 0 ? Math.round((yearlyTotal / totalRoomDays) * 100) : 0;
+            document.getElementById('occupancy-rate').textContent = `${occupancyRate}%`;
+            
+            // Update financial summaries
+            document.getElementById('total-advance').textContent = `₹${Math.round(totalAdvance).toLocaleString()}`;
+            document.getElementById('pending-payments').textContent = `₹${Math.round(totalPending).toLocaleString()}`;
+            document.getElementById('advance-this-month').textContent = `₹${Math.round(monthlyAdvance[currentMonthYear] || 0).toLocaleString()}`;
+            document.getElementById('sidebar-advance-total').textContent = `₹${Math.round(totalAdvance).toLocaleString()}`;
+            
+            // Calculate projected revenue
+            let projectedRevenue = 0;
+            bookings.forEach(booking => {
+                projectedRevenue += booking.totalAmount;
+            });
+            document.getElementById('projected-revenue').textContent = `₹${Math.round(projectedRevenue).toLocaleString()}`;
+        }
+        
+        // Update sidebar with monthly breakdown
+        function updateSidebarSummary() {
+            const monthlyList = document.getElementById('monthly-summary-list');
+            monthlyList.innerHTML = '';
+            
+            // Sort months chronologically
+            const monthKeys = Object.keys(monthlyTotals).sort((a, b) => {
+                const dateA = new Date(a);
+                const dateB = new Date(b);
+                return dateA - dateB;
+            });
+            
+            // Add each month to the list
+            monthKeys.forEach(month => {
+                const item = document.createElement('div');
+                item.className = 'month-summary-item';
+                
+                // Get month index for color
+                const monthName = month.split(' ')[0].toUpperCase();
+                let monthIndex = 0;
+                Object.keys(monthColors).forEach(key => {
+                    if (monthColors[key].name === monthName) {
+                        monthIndex = parseInt(key);
+                    }
+                });
+                
+                const monthColor = monthColors[monthIndex].color;
+                
+                const monthNameSpan = document.createElement('span');
+                monthNameSpan.className = 'month-name';
+                monthNameSpan.innerHTML = `<span class="month-color-indicator" style="background-color: ${monthColor};"></span> ${month}`;
+                
+                const monthCount = document.createElement('span');
+                monthCount.className = 'month-count';
+                monthCount.textContent = monthlyTotals[month];
+                
+                const monthAdvance = document.createElement('span');
+                monthAdvance.className = 'month-advance';
+                monthAdvance.innerHTML = `₹${Math.round(monthlyAdvance[month] || 0).toLocaleString()}`;
+                
+                item.appendChild(monthNameSpan);
+                item.appendChild(monthCount);
+                item.appendChild(monthAdvance);
+                monthlyList.appendChild(item);
+            });
+            
+            // Update meal plan distribution
+            updateMealPlanSummary();
+            
+            // Update chart
+            updateMonthlyChart(monthKeys);
+        }
+        
+        // Update meal plan summary in sidebar
+        function updateMealPlanSummary() {
+            const mealPlanList = document.getElementById('meal-plan-summary-list');
+            mealPlanList.innerHTML = '';
+            
+            // Count bookings by meal plan
+            const mealPlanCounts = { EP: 0, CP: 0, MAP: 0 };
+            
+            bookings.forEach(booking => {
+                if (mealPlanCounts[booking.mealPlan] !== undefined) {
+                    mealPlanCounts[booking.mealPlan]++;
+                }
+            });
+            
+            // Add each meal plan to the list
+            Object.keys(mealPlanCounts).forEach(plan => {
+                const item = document.createElement('div');
+                item.className = 'meal-plan-item';
+                
+                const planName = document.createElement('span');
+                planName.className = 'plan-name';
+                
+                const planColor = document.createElement('span');
+                planColor.className = `plan-color ${plan.toLowerCase()}`;
+                
+                const planText = document.createElement('span');
+                planText.textContent = plan;
+                
+                planName.appendChild(planColor);
+                planName.appendChild(planText);
+                
+                const planCount = document.createElement('span');
+                planCount.className = 'plan-count';
+                planCount.textContent = mealPlanCounts[plan];
+                
+                item.appendChild(planName);
+                item.appendChild(planCount);
+                mealPlanList.appendChild(item);
+            });
+        }
+        
+        // Create/update monthly chart
+        function updateMonthlyChart(monthKeys) {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            
+            // Prepare data for chart (booking days and advance)
+            const monthData = monthKeys.map(month => monthlyTotals[month]);
+            const advanceData = monthKeys.map(month => monthlyAdvance[month] || 0);
+            
+            // Prepare colors for each month
+            const backgroundColors = monthKeys.map(month => {
+                const monthName = month.split(' ')[0].toUpperCase();
+                let monthColor = '#3498db'; // Default blue
+                Object.keys(monthColors).forEach(key => {
+                    if (monthColors[key].name === monthName) {
+                        monthColor = monthColors[key].color;
+                    }
+                });
+                return monthColor;
+            });
+            
+            // Destroy existing chart if it exists
+            if (monthlyChart) {
+                monthlyChart.destroy();
+            }
+            
+            // Create new chart
+            monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: monthKeys.map(m => m.split(' ')[0]), // Just show month abbreviation
+                    datasets: [{
+                        label: 'Booking Days',
+                        data: monthData,
+                        backgroundColor: backgroundColors,
+                        borderColor: backgroundColors.map(color => color.replace('0.8', '1')),
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Advance (₹)',
+                        data: advanceData,
+                        backgroundColor: '#27ae60',
+                        borderColor: '#219653',
+                        borderWidth: 1,
+                        type: 'line',
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Booking Days'
+                            },
+                            position: 'left'
+                        },
+                        y1: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Advance (₹)'
+                            },
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Monthly Booking & Advance Trends'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Open booking modal
+        function openBookingModal() {
+            // Reset availability check
+            resetAvailabilityCheck();
+            
+            // Clear form
+            document.getElementById('booking-form').reset();
+            
+            // Reset date pickers
+            const today = new Date();
+            const nextWeek = new Date();
+            nextWeek.setDate(today.getDate() + 7);
+            
+            // Set default dates
+            const checkinPicker = flatpickr("#modal-checkin", { 
+                defaultDate: today,
+                minDate: "today",
+                maxDate: new Date().fp_incr(365)
+            });
+            
+            const checkoutPicker = flatpickr("#modal-checkout", { 
+                defaultDate: nextWeek,
+                minDate: "today",
+                maxDate: new Date().fp_incr(365)
+            });
+            
+            // Show modal
+            document.getElementById('booking-modal').style.display = 'flex';
+            document.getElementById('modal-checkin').focus();
+        }
+        
+        // Close booking modal
+        function closeBookingModal() {
+            document.getElementById('booking-modal').style.display = 'none';
+            document.getElementById('booking-form').reset();
+            resetAvailabilityCheck();
+        }
+        
+        // Open bulk booking modal
+        function openBulkBookingModal() {
+            if (!selectedDateRange.checkin || !selectedDateRange.checkout) {
+                alert('Please select a date range first using the check-in and check-out date pickers.');
+                return;
+            }
+            
+            // Update modal with selected dates
+            const checkinDate = new Date(selectedDateRange.checkin);
+            const checkoutDate = new Date(selectedDateRange.checkout);
+            
+            document.getElementById('bulk-date-range').textContent = 
+                `Selected Dates: ${checkinDate.toLocaleDateString()} to ${checkoutDate.toLocaleDateString()}`;
+            
+            document.getElementById('selected-dates-display').textContent = 
+                `${checkinDate.toLocaleDateString()} to ${checkoutDate.toLocaleDateString()}`;
+            
+            // Populate room selection grid
+            populateRoomSelectionGrid();
+            
+            // Update room selection count
+            updateRoomSelectionCount();
+            
+            // Show modal
+            document.getElementById('bulk-booking-modal').style.display = 'flex';
+            document.getElementById('bulk-guest-name').focus();
+        }
+        
+        // Close bulk booking modal
+        function closeBulkBookingModal() {
+            document.getElementById('bulk-booking-modal').style.display = 'none';
+            document.getElementById('bulk-booking-form').reset();
+            selectedRooms = [];
+        }
+        
+        // Populate room selection grid for bulk booking
+        function populateRoomSelectionGrid() {
+            const grid = document.getElementById('room-selection-grid');
+            grid.innerHTML = '';
+            
+            const checkinDate = new Date(selectedDateRange.checkin);
+            const checkoutDate = new Date(selectedDateRange.checkout);
+            
+            rooms.forEach(room => {
+                const roomItem = document.createElement('div');
+                roomItem.className = 'room-checkbox-item';
+                roomItem.dataset.roomNumber = room.number;
+                
+                // Check if room is available for selected dates
+                const isAvailable = checkRoomAvailability(room.number, selectedDateRange.checkin, selectedDateRange.checkout);
+                
+                if (!isAvailable) {
+                    roomItem.classList.add('unavailable');
+                }
+                
+                // Get category text
+                let categoryText = '';
+                if (room.category === 'superior') categoryText = 'Superior';
+                else if (room.category === 'standard') categoryText = 'Standard';
+                else if (room.category === 'exclusive') categoryText = 'Exclusive';
+                else if (room.category === 'both') categoryText = 'Superior/Standard';
+                
+                roomItem.innerHTML = `
+                    <input type="checkbox" class="room-checkbox" id="room-${room.number}" 
+                           data-room-number="${room.number}" ${!isAvailable ? 'disabled' : ''}>
+                    <label class="room-checkbox-label" for="room-${room.number}">
+                        Tent ${room.number}
+                    </label>
+                    <div class="room-category-label">${categoryText}</div>
+                    ${!isAvailable ? '<div style="font-size: 0.7rem; color: #e74c3c; margin-top: 3px;">Booked</div>' : ''}
+                `;
+                
+                // Add event listener to checkbox
+                const checkbox = roomItem.querySelector('.room-checkbox');
+                checkbox.addEventListener('change', function() {
+                    updateRoomSelection(this);
+                });
+                
+                // Pre-select if already in selectedRooms
+                if (selectedRooms.includes(room.number)) {
+                    checkbox.checked = true;
+                    roomItem.classList.add('selected');
+                }
+                
+                grid.appendChild(roomItem);
+            });
+        }
+        
+        // Update room selection
+        function updateRoomSelection(checkbox) {
+            const roomNumber = parseInt(checkbox.dataset.roomNumber);
+            const roomItem = checkbox.closest('.room-checkbox-item');
+            
+            if (checkbox.checked) {
+                if (!selectedRooms.includes(roomNumber)) {
+                    selectedRooms.push(roomNumber);
+                    roomItem.classList.add('selected');
+                }
+            } else {
+                const index = selectedRooms.indexOf(roomNumber);
+                if (index > -1) {
+                    selectedRooms.splice(index, 1);
+                    roomItem.classList.remove('selected');
+                }
+            }
+            
+            updateRoomSelectionCount();
+            updateBulkBookingSummary();
+        }
+        
+        // Update room selection count display
+        function updateRoomSelectionCount() {
+            document.getElementById('selected-rooms-count').textContent = selectedRooms.length;
+        }
+        
+        // Select all available rooms
+        function selectAllRooms() {
+            selectedRooms = [];
+            const checkboxes = document.querySelectorAll('.room-checkbox:not(:disabled)');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                const roomNumber = parseInt(checkbox.dataset.roomNumber);
+                if (!selectedRooms.includes(roomNumber)) {
+                    selectedRooms.push(roomNumber);
+                }
+                
+                const roomItem = checkbox.closest('.room-checkbox-item');
+                roomItem.classList.add('selected');
+            });
+            
+            updateRoomSelectionCount();
+            updateBulkBookingSummary();
+        }
+        
+        // Deselect all rooms
+        function deselectAllRooms() {
+            selectedRooms = [];
+            const checkboxes = document.querySelectorAll('.room-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const roomItem = checkbox.closest('.room-checkbox-item');
+                roomItem.classList.remove('selected');
+            });
+            
+            updateRoomSelectionCount();
+            updateBulkBookingSummary();
+        }
+        
+        // Update bulk booking summary
+        function updateBulkBookingSummary() {
+            const summaryElement = document.getElementById('bulk-booking-summary');
+            
+            if (selectedRooms.length === 0) {
+                summaryElement.innerHTML = '<p><strong>No rooms selected yet.</strong> Select rooms from the grid above.</p>';
+                return;
+            }
+            
+            const checkinDate = new Date(selectedDateRange.checkin);
+            const checkoutDate = new Date(selectedDateRange.checkout);
+            const nights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+            
+            let summaryHTML = `
+                <p><strong>Booking Summary:</strong></p>
+                <p>Dates: ${checkinDate.toLocaleDateString()} to ${checkoutDate.toLocaleDateString()} (${nights} nights)</p>
+                <p>Selected Rooms: ${selectedRooms.length} room(s)</p>
+                <p>Rooms: ${selectedRooms.sort((a, b) => a - b).map(num => `Tent ${num}`).join(', ')}</p>
+            `;
+            
+            summaryElement.innerHTML = summaryHTML;
+        }
+        
+        // Check availability for selected dates
+        function checkAvailability() {
+            if (!selectedDateRange.checkin || !selectedDateRange.checkout) {
+                alert('Please select a date range first using the check-in and check-out date pickers.');
+                return;
+            }
+            
+            const checkinDate = new Date(selectedDateRange.checkin);
+            const checkoutDate = new Date(selectedDateRange.checkout);
+            const nights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+            
+            // Check availability for all rooms
+            let availableRooms = [];
+            let bookedRooms = [];
+            
+            rooms.forEach(room => {
+                const isAvailable = checkRoomAvailability(room.number, selectedDateRange.checkin, selectedDateRange.checkout);
+                if (isAvailable) {
+                    availableRooms.push(room.number);
+                } else {
+                    bookedRooms.push(room.number);
+                }
+            });
+            
+            let message = `
+                Availability Check for:
+                ${checkinDate.toLocaleDateString()} to ${checkoutDate.toLocaleDateString()} (${nights} nights)
+                
+                Available Rooms: ${availableRooms.length} room(s)
+                ${availableRooms.length > 0 ? 'Rooms: ' + availableRooms.sort((a, b) => a - b).map(num => `Tent ${num}`).join(', ') : 'No rooms available'}
+                
+                Booked Rooms: ${bookedRooms.length} room(s)
+                ${bookedRooms.length > 0 ? 'Rooms: ' + bookedRooms.sort((a, b) => a - b).map(num => `Tent ${num}`).join(', ') : 'No rooms booked'}
+                
+                Click "Bulk Booking" to book available rooms.
+            `;
+            
+            alert(message);
+        }
+        
+        // Clear selection
+        function clearSelection() {
+            selectedDateRange = { checkin: null, checkout: null };
+            selectedRooms = [];
+            
+            // Clear date pickers
+            document.getElementById('checkin-date').value = '';
+            document.getElementById('checkout-date').value = '';
+            
+            // Update chart to clear selection highlights
+            updateReservationChart();
+            
+            alert('Selection cleared. Please select new dates for booking.');
+        }
+        
+        // Save bulk booking
+        function saveBulkBooking(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const guestName = document.getElementById('bulk-guest-name').value;
+            const guestPhone = document.getElementById('bulk-guest-phone').value;
+            const mealPlan = document.getElementById('bulk-meal-plan').value;
+            const paymentStatus = document.getElementById('bulk-payment-status').value;
+            const totalAmount = parseFloat(document.getElementById('bulk-total-amount').value);
+            const advancePaid = parseFloat(document.getElementById('bulk-advance-paid').value);
+            const notes = document.getElementById('bulk-booking-notes').value;
+            
+            // Validate
+            if (selectedRooms.length === 0) {
+                alert('Please select at least one room for bulk booking.');
+                return;
+            }
+            
+            if (!mealPlan) {
+                alert('Please select a meal plan for all rooms.');
+                return;
+            }
+            
+            if (advancePaid > totalAmount) {
+                alert('Advance paid cannot be more than total amount');
+                return;
+            }
+            
+            // Calculate amount per room (simple division)
+            const amountPerRoom = totalAmount / selectedRooms.length;
+            const advancePerRoom = advancePaid / selectedRooms.length;
+            
+            // Create bookings for each selected room
+            let newBookings = [];
+            let bookingId = bookings.length > 0 ? Math.max(...bookings.map(b => b.id)) + 1 : 1;
+            
+            selectedRooms.forEach(roomNumber => {
+                const newBooking = {
+                    id: bookingId++,
+                    guest: guestName,
+                    phone: guestPhone,
+                    room: roomNumber,
+                    mealPlan: mealPlan,
+                    checkin: selectedDateRange.checkin,
+                    checkout: selectedDateRange.checkout,
+                    totalAmount: amountPerRoom,
+                    advancePaid: advancePerRoom,
+                    paymentStatus: paymentStatus,
+                    notes: notes
+                };
+                newBookings.push(newBooking);
+            });
+            
+            // Add all new bookings to bookings array
+            bookings.push(...newBookings);
+            
+            // Save to localStorage
+            localStorage.setItem('resortBookings', JSON.stringify(bookings));
+            
+            // Update the reservation chart
+            updateReservationChart();
+            
+            // Close modal and reset form
+            closeBulkBookingModal();
+            
+            // Show confirmation
+            alert(`Bulk booking confirmed for ${guestName}!\n\n` +
+                  `Rooms: ${selectedRooms.length} (${selectedRooms.sort((a, b) => a - b).map(num => `Tent ${num}`).join(', ')})\n` +
+                  `Dates: ${new Date(selectedDateRange.checkin).toLocaleDateString()} to ${new Date(selectedDateRange.checkout).toLocaleDateString()}\n` +
+                  `Meal Plan: ${mealPlan}\n` +
+                  `Total Advance: ₹${advancePaid.toLocaleString()}`);
+        }
+        
+        // Save new booking (single) - only called after availability check
+        function saveBooking(e) {
+            e.preventDefault();
+            
+            // Verify that availability was checked and room is still available
+            if (!availabilityChecked) {
+                alert('Please check room availability first before saving the booking.');
+                return;
+            }
+            
+            // Double-check availability again in case someone else booked it in the meantime
+            const isStillAvailable = checkRoomAvailability(availableRoomNumber, availableCheckinDate, availableCheckoutDate);
+            if (!isStillAvailable) {
+                alert(`Room Tent ${availableRoomNumber} is no longer available for the selected dates. Please check availability again.`);
+                resetAvailabilityCheck();
+                return;
+            }
+            
+            // Get form values
+            const guestName = document.getElementById('guest-name').value;
+            const guestPhone = document.getElementById('guest-phone').value;
+            const mealPlan = document.getElementById('modal-meal-plan').value;
+            const totalAmount = parseFloat(document.getElementById('total-amount').value);
+            const advancePaid = parseFloat(document.getElementById('advance-paid').value);
+            const paymentStatus = document.getElementById('payment-status').value;
+            const notes = document.getElementById('booking-notes').value;
+            
+            // Validate required fields
+            if (!guestName || !guestPhone || !mealPlan || !totalAmount) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Validate amounts
+            if (advancePaid > totalAmount) {
+                alert('Advance paid cannot be more than total amount');
+                return;
+            }
+            
+            // Create booking object
+            const newBooking = {
+                id: bookings.length > 0 ? Math.max(...bookings.map(b => b.id)) + 1 : 1,
+                guest: guestName,
+                phone: guestPhone,
+                room: availableRoomNumber,
+                mealPlan: mealPlan,
+                checkin: availableCheckinDate,
+                checkout: availableCheckoutDate,
+                totalAmount: totalAmount,
+                advancePaid: advancePaid,
+                paymentStatus: paymentStatus,
+                notes: notes
+            };
+            
+            // Add to bookings array
+            bookings.push(newBooking);
+            
+            // Save to localStorage
+            localStorage.setItem('resortBookings', JSON.stringify(bookings));
+            
+            // Update the reservation chart
+            updateReservationChart();
+            
+            // Close modal and reset form
+            closeBookingModal();
+            
+            // Show confirmation
+            alert(`Booking confirmed for ${guestName} in Tent ${availableRoomNumber} from ${availableCheckinDate} to ${availableCheckoutDate}\nAdvance: ₹${advancePaid.toLocaleString()}`);
+        }
+        
+        // Check if a room is available for given dates
+        function checkRoomAvailability(roomNumber, checkinDate, checkoutDate) {
+            const checkin = new Date(checkinDate);
+            const checkout = new Date(checkoutDate);
+            
+            for (const booking of bookings) {
+                if (booking.room === roomNumber) {
+                    const bookingCheckin = new Date(booking.checkin);
+                    const bookingCheckout = new Date(booking.checkout);
+                    
+                    // Check for date overlap
+                    if (checkin < bookingCheckout && checkout > bookingCheckin) {
+                        return false; // Room is already booked for these dates
+                    }
+                }
+            }
+            
+            return true; // Room is available
+        }
+        
+        // View booking details
+        function viewBookingDetails(bookingId) {
+            const booking = bookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            let mealPlanText = '';
+            if (booking.mealPlan === 'EP') mealPlanText = 'European Plan (No meals)';
+            else if (booking.mealPlan === 'CP') mealPlanText = 'Continental Plan (Breakfast only)';
+            else if (booking.mealPlan === 'MAP') mealPlanText = 'Modified American Plan (Breakfast & Dinner)';
+            
+            const balance = booking.totalAmount - booking.advancePaid;
+            
+            const message = `
+                Booking Details:
+                Guest: ${booking.guest}
+                Phone: ${booking.phone}
+                Room: Tent ${booking.room}
+                Meal Plan: ${mealPlanText}
+                Check-in: ${booking.checkin}
+                Check-out: ${booking.checkout}
+                Total Amount: ₹${booking.totalAmount.toLocaleString()}
+                Advance Paid: ₹${booking.advancePaid.toLocaleString()}
+                Balance: ₹${balance.toLocaleString()}
+                Payment Status: ${booking.paymentStatus}
+                ${booking.notes ? `Notes: ${booking.notes}` : ''}
+                
+                Click OK to remove this booking.
+            `;
+            
+            if (confirm(message)) {
+                // Remove booking
+                bookings = bookings.filter(b => b.id !== bookingId);
+                localStorage.setItem('resortBookings', JSON.stringify(bookings));
+                updateReservationChart();
+                alert('Booking removed successfully.');
+            }
+        }
+    </script>
+</body>
+</html>
